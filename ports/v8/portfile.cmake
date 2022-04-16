@@ -1,5 +1,5 @@
 
-set(pkgver "9.1.269.39")
+set(pkgver "10.3.1")
 
 set(ENV{DEPOT_TOOLS_WIN_TOOLCHAIN} 0)
 
@@ -71,41 +71,46 @@ endfunction()
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL https://chromium.googlesource.com/v8/v8.git
-    REF 7d3d62c91f69a702e5aa54c6b4dbbaa883683717
-    PATCHES ${CURRENT_PORT_DIR}/v8.patch
+    REF f2cd16e15df7a6c9218cd59a63aee70e440468ae
+    #PATCHES ${CURRENT_PORT_DIR}/v8.patch
 )
+
+vcpkg_find_acquire_program(PYTHON3)
+file(READ "${SOURCE_PATH}/.gn" GN_FILE_CONTENT)
+string(REPLACE "script_executable = \"python3\"" "script_executable = \"${PYTHON3}\"" GN_FILE_CONTENT ${GN_FILE_CONTENT})
+file(WRITE "${SOURCE_PATH}/.gn" ${GN_FILE_CONTENT})
 
 message(STATUS "Fetching submodules")
 v8_fetch(
         DESTINATION build
         URL https://chromium.googlesource.com/chromium/src/build.git
-        REF fd86d60f33cbc794537c4da2ef7e298d7f81138e 
+        REF 67d9897605ca4093b3f39b81369a063c511d6213 
         SOURCE ${SOURCE_PATH}
         PATCHES ${CURRENT_PORT_DIR}/build.patch)
 v8_fetch(
         DESTINATION third_party/zlib
         URL https://chromium.googlesource.com/chromium/src/third_party/zlib.git
-        REF 156be8c52f80cde343088b4a69a80579101b6e67
+        REF a6d209ab932df0f1c9d5b7dc67cfa74e8a3272c0
         SOURCE ${SOURCE_PATH})
 v8_fetch(
         DESTINATION base/trace_event/common
         URL https://chromium.googlesource.com/chromium/src/base/trace_event/common.git
-        REF dab187b372fc17e51f5b9fad8201813d0aed5129
+        REF d115b033c4e53666b535cbd1985ffe60badad082
         SOURCE ${SOURCE_PATH})
 v8_fetch(
         DESTINATION third_party/googletest/src
         URL https://chromium.googlesource.com/external/github.com/google/googletest.git
-        REF 10b1902d893ea8cc43c69541d70868f91af3646b
+        REF af29db7ec28d6df1c7f0f745186884091e602e07
         SOURCE ${SOURCE_PATH})
 v8_fetch(
         DESTINATION third_party/jinja2
         URL https://chromium.googlesource.com/chromium/src/third_party/jinja2.git
-        REF b41863e42637544c2941b574c7877d3e1f663e25
+        REF ee69aa00ee8536f61db6a451f3858745cf587de6
         SOURCE ${SOURCE_PATH})
 v8_fetch(
         DESTINATION third_party/markupsafe
         URL https://chromium.googlesource.com/chromium/src/third_party/markupsafe.git
-        REF 8f45f5cfa0009d2a70589bcda0349b8cb2b72783
+        REF 1b882ef6372b58bfd55a3285f37ed801be9137cd
         SOURCE ${SOURCE_PATH})
 
 vcpkg_execute_required_process(
