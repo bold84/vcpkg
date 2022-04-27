@@ -6,10 +6,12 @@ vcpkg_from_git(
         "use_vcpkg_fontconfig.patch"
 )
 
+set(DEBUG_BUILD_DIR ${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg)
+set(RELEASE_BUILD_DIR ${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel)
+
 # Replace hardcoded python paths
 vcpkg_find_acquire_program(PYTHON3)
 vcpkg_replace_string("${SOURCE_PATH}/.gn" "script_executable = \"python3\"" "script_executable = \"${PYTHON3}\"")
-
 vcpkg_replace_string("${SOURCE_PATH}/gn/toolchain/BUILD.gn" "command = \"$shell python" "command = \"$shell '${PYTHON3}'")
 
 function(checkout_in_path PATH URL REF)
@@ -324,7 +326,11 @@ else()
     set(DAWN_LINKAGE "static")
 endif()
 
-vcpkg_list(SET SKIA_TARGETS ":skia")
+vcpkg_list(SET SKIA_TARGETS
+    ":skia"
+#    ":gpu"
+#    ":pdf"
+)
 if("dawn" IN_LIST FEATURES)
     vcpkg_list(APPEND SKIA_TARGETS
         "third_party/externals/dawn/src/dawn:proc_${DAWN_LINKAGE}"
@@ -339,16 +345,16 @@ vcpkg_install_gn(
         ${SKIA_TARGETS}
 )
 
-message(STATUS "Installing: ${CURRENT_PACKAGES_DIR}/include/${PORT}")
-file(COPY "${SOURCE_PATH}/include"
-    DESTINATION "${CURRENT_PACKAGES_DIR}/include")
-file(RENAME "${CURRENT_PACKAGES_DIR}/include/include"
-    "${CURRENT_PACKAGES_DIR}/include/${PORT}")
-file(GLOB_RECURSE SKIA_INCLUDE_FILES LIST_DIRECTORIES false
-    "${CURRENT_PACKAGES_DIR}/include/${PORT}/*")
-foreach(file_ ${SKIA_INCLUDE_FILES})
-    vcpkg_replace_string("${file_}" "#include \"include/" "#include \"${PORT}/")
-endforeach()
+# message(STATUS "Installing: ${CURRENT_PACKAGES_DIR}/include/${PORT}")
+# file(COPY "${SOURCE_PATH}/include"
+#     DESTINATION "${CURRENT_PACKAGES_DIR}/include")
+# file(RENAME "${CURRENT_PACKAGES_DIR}/include/include"
+#     "${CURRENT_PACKAGES_DIR}/include/${PORT}")
+# file(GLOB_RECURSE SKIA_INCLUDE_FILES LIST_DIRECTORIES false
+#     "${CURRENT_PACKAGES_DIR}/include/${PORT}/*")
+# foreach(file_ ${SKIA_INCLUDE_FILES})
+#     vcpkg_replace_string("${file_}" "#include \"include/" "#include \"${PORT}/")
+# endforeach()
 
 # get a list of library dependencies for TARGET
 function(gn_desc_target_libs OUTPUT BUILD_DIR TARGET)
@@ -369,6 +375,115 @@ function(gn_desc_target_defines OUTPUT BUILD_DIR TARGET)
     list(FILTER OUTPUT_ EXCLUDE REGEX "^_")
     set(${OUTPUT} ${OUTPUT_} PARENT_SCOPE)
 endfunction()
+
+function(gn_desc_target_public_headers OUTPUT BUILD_DIR TARGET)
+    z_vcpkg_install_gn_get_desc(OUTPUT_
+        SOURCE_PATH "${SOURCE_PATH}"
+        BUILD_DIR "${BUILD_DIR}"
+        TARGET "${TARGET}"
+      WHAT_TO_DISPLAY public)
+    # exclude system defines such as _HAS_EXCEPTIONS=0
+    list(FILTER OUTPUT_ EXCLUDE REGEX "^_")
+    set(${OUTPUT} ${OUTPUT_} PARENT_SCOPE)
+endfunction()
+
+function(z_vcpkg_install_gn_install_headers OUTPUT)
+    cmake_parse_arguments(PARSE_ARGV 1 "arg" "" "SOURCE_PATH;BUILD_DIR;TARGET;INCLUDE_PRIVATE_HEADERS" "")
+    if(DEFINED arg_UNPARSED_ARGUMENTS)
+        message(FATAL_ERROR "Internal error: install_headers was passed extra arguments: ${arg_UNPARSED_ARGUMENTS}")
+    endif()
+
+    vcpkg_list(SET WTD "public")
+    if(${arg_INCLUDE_PRIVATE_HEADERS})
+        vcpkg_list(APPEND WTD "sources")
+    endif()
+
+    z_vcpkg_install_gn_get_desc(RAW_HDRS
+        SOURCE_PATH ${arg_SOURCE_PATH}
+        BUILD_DIR ${arg_BUILD_DIR}
+        TARGET "${arg_TARGET}"
+        WHAT_TO_DISPLAY sources
+    )
+
+    # Remove .cpp and .mm files
+    list(FILTER RAW_HDRS EXCLUDE REGEX ".*\.cpp$|.*\.mm$")
+
+    # Remove leading double slash
+    vcpkg_list(SET CORRECTED_RAW_HDRS)
+    foreach(RAW_HDR IN LISTS RAW_HDRS)
+      string(REGEX REPLACE
+			"^\\/\\/(.*)"
+			"\\1"
+      RAW_HDR
+			"${RAW_HDR}")
+      vcpkg_list(APPEND CORRECTED_RAW_HDRS ${RAW_HDR})
+    endforeach()
+
+    vcpkg_list(SET INCLUDE_HDRS ${CORRECTED_RAW_HDRS})
+    list(FILTER INCLUDE_HDRS INCLUDE REGEX "^include\\/.*")
+
+    foreach(HDR IN LISTS INCLUDE_HDRS)
+      string(REGEX REPLACE
+        "^include\\/(.*)"
+        "include/skia/\\1"
+        NEW_HDR
+        ${HDR}
+      )
+      get_filename_component(DEST_DIR "${CURRENT_PACKAGES_DIR}/${NEW_HDR}" DIRECTORY)
+      file(INSTALL "${arg_SOURCE_PATH}/${HDR}" DESTINATION "${DEST_DIR}")
+      vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/${NEW_HDR}" "#include \"include/" "#include \"${PORT}/")
+      message("PATH: ${CURRENT_PACKAGES_DIR}/${NEW_HDR}")
+    endforeach()
+
+    if(${arg_INCLUDE_PRIVATE_HEADERS})
+
+    vcpkg_list(SET SOURCE_HDRS ${CORRECTED_RAW_HDRS})
+    list(FILTER SOURCE_HDRS INCLUDE REGEX "^src\\/.*")
+
+    foreach(HDR IN LISTS SOURCE_HDRS)
+      string(REGEX REPLACE
+        "^src\\/(.*)"
+        "include/skia/\\1"
+        NEW_HDR
+        ${HDR}
+      )
+      get_filename_component(DEST_DIR "${CURRENT_PACKAGES_DIR}/${NEW_HDR}" DIRECTORY)
+      file(INSTALL "${arg_SOURCE_PATH}/${HDR}" DESTINATION "${DEST_DIR}")
+      vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/${NEW_HDR}" "#include \"src/" "#include \"${PORT}/")
+      vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/${NEW_HDR}" "#include \"include/" "#include \"${PORT}/")
+    endforeach()
+
+    endif()
+
+    set(${OUTPUT} ${HDRS} PARENT_SCOPE)
+endfunction()
+
+
+  z_vcpkg_install_gn_install_headers(RES
+    SOURCE_PATH "${SOURCE_PATH}"
+    BUILD_DIR ${DEBUG_BUILD_DIR}
+    TARGET ":skia"
+    INCLUDE_PRIVATE_HEADERS False
+  )
+
+# vcpkg_list(SET INCLUDE_TARGETS
+#
+#   ":gpu"
+#   ":pdf"
+# )
+
+foreach(INCLUDE_TARGET IN LISTS INCLUDE_TARGETS)
+    z_vcpkg_install_gn_install_headers(RES
+      SOURCE_PATH "${SOURCE_PATH}"
+      BUILD_DIR ${DEBUG_BUILD_DIR}
+      TARGET "${INCLUDE_TARGET}"
+      INCLUDE_PRIVATE_HEADERS True
+    )
+endforeach()
+
+# message("${RES}")
+
+
 
 # skiaConfig.cmake.in input variables
 if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
