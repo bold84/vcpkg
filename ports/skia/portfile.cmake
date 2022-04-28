@@ -134,7 +134,7 @@ if(CMAKE_HOST_UNIX)
 
 set(OPTIONS "\
 skia_use_lua=false \
-skia_enable_tools=false \
+skia_enable_tools=true \
 skia_enable_spirv_validation=false \
 target_cpu=\"${VCPKG_TARGET_ARCHITECTURE}\"")
 
@@ -149,9 +149,6 @@ set(SKIA_PUBLIC_DEFINITIONS
 
 if(VCPKG_LIBRARY_LINKAGE STREQUAL dynamic)
     string(APPEND OPTIONS " is_component_build=true")
-    if(CMAKE_HOST_WIN32)
-        set(SKIA_PUBLIC_DEFINITIONS SKIA_DLL)
-    endif()
 else()
     string(APPEND OPTIONS " is_component_build=false")
 endif()
@@ -159,40 +156,43 @@ endif()
 if(CMAKE_HOST_APPLE)
     if("metal" IN_LIST FEATURES)
         set(OPTIONS "${OPTIONS} skia_use_metal=true")
-        list(APPEND SKIA_PUBLIC_DEFINITIONS SK_METAL)
+    else()
+        set(OPTIONS "${OPTIONS} skia_use_metal=false")
     endif()
 endif()
 
 if("vulkan" IN_LIST FEATURES)
      set(OPTIONS "${OPTIONS} skia_use_vulkan=true")
-     list(APPEND SKIA_PUBLIC_DEFINITIONS SK_VULKAN)
- endif()
+else()
+    set(OPTIONS "${OPTIONS} skia_use_vulkan=false")
+endif()
 
 if(CMAKE_HOST_WIN32)
-   if("direct3d" IN_LIST FEATURES)
-       set(OPTIONS "${OPTIONS} skia_use_direct3d=true")
-       list(APPEND SKIA_PUBLIC_DEFINITIONS SK_DIRECT3D)
+    if("direct3d" IN_LIST FEATURES)
+        set(OPTIONS "${OPTIONS} skia_use_direct3d=true")
 
-       checkout_in_path("${EXTERNALS}/spirv-cross"
-           "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross"
-           "6a67891418a3f08be63f92726e049dc788e46f5b"
-       )
+        checkout_in_path("${EXTERNALS}/spirv-cross"
+            "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross"
+            "6a67891418a3f08be63f92726e049dc788e46f5b"
+        )
 
-       checkout_in_path("${EXTERNALS}/spirv-headers"
-           "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git"
-           "82becc8a8a92e509d3d8d635889da0a3c17d0606"
-       )
+        checkout_in_path("${EXTERNALS}/spirv-headers"
+            "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git"
+            "82becc8a8a92e509d3d8d635889da0a3c17d0606"
+        )
 
-       checkout_in_path("${EXTERNALS}/spirv-tools"
-           "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git"
-           "cb96abbf7affd986016f17dd09f9f971138a922b"
-       )
+        checkout_in_path("${EXTERNALS}/spirv-tools"
+            "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git"
+            "cb96abbf7affd986016f17dd09f9f971138a922b"
+        )
 
-       checkout_in_path("${EXTERNALS}/d3d12allocator"
-           "https://skia.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git"
-           "169895d529dfce00390a20e69c2f516066fe7a3b"
-       )
-   endif()
+        checkout_in_path("${EXTERNALS}/d3d12allocator"
+            "https://skia.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git"
+            "169895d529dfce00390a20e69c2f516066fe7a3b"
+        )
+    else()
+        set(OPTIONS "${OPTIONS} skia_use_direct3d=false")
+    endif()
 endif()
 
 if("dawn" IN_LIST FEATURES)
@@ -211,70 +211,72 @@ They can be installed on Debian based systems via
         )
     endif()
 
-   set(OPTIONS "${OPTIONS} skia_use_dawn=true")
-   list(APPEND SKIA_PUBLIC_DEFINITIONS SK_DAWN)
+    set(OPTIONS "${OPTIONS} skia_use_dawn=true")
 
-   checkout_in_path("${EXTERNALS}/spirv-cross"
-       "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross"
-       "6a67891418a3f08be63f92726e049dc788e46f5b"
-   )
+    checkout_in_path("${EXTERNALS}/spirv-cross"
+        "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross"
+        "6a67891418a3f08be63f92726e049dc788e46f5b"
+    )
 
-   checkout_in_path("${EXTERNALS}/spirv-headers"
-       "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git"
-       "82becc8a8a92e509d3d8d635889da0a3c17d0606"
-   )
+    checkout_in_path("${EXTERNALS}/spirv-headers"
+        "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git"
+        "82becc8a8a92e509d3d8d635889da0a3c17d0606"
+    )
 
-   checkout_in_path("${EXTERNALS}/spirv-tools"
-       "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git"
-       "cb96abbf7affd986016f17dd09f9f971138a922b"
-   )
+    checkout_in_path("${EXTERNALS}/spirv-tools"
+        "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git"
+        "cb96abbf7affd986016f17dd09f9f971138a922b"
+    )
 
-   checkout_in_path("${EXTERNALS}/tint"
-         "https://dawn.googlesource.com/tint"
-         "b612c505939bf86c80a55c193b93c41ed0f252a1"
-   )
+    checkout_in_path("${EXTERNALS}/tint"
+       "https://dawn.googlesource.com/tint"
+       "b612c505939bf86c80a55c193b93c41ed0f252a1"
+    )
 
-   checkout_in_path("${EXTERNALS}/jinja2"
-       "https://chromium.googlesource.com/chromium/src/third_party/jinja2"
-       "ee69aa00ee8536f61db6a451f3858745cf587de6"
-   )
+    checkout_in_path("${EXTERNALS}/jinja2"
+        "https://chromium.googlesource.com/chromium/src/third_party/jinja2"
+        "ee69aa00ee8536f61db6a451f3858745cf587de6"
+    )
 
-   checkout_in_path("${EXTERNALS}/markupsafe"
-       "https://chromium.googlesource.com/chromium/src/third_party/markupsafe"
-       "0944e71f4b2cb9a871bcbe353f95e889b64a611a"
-   )
+    checkout_in_path("${EXTERNALS}/markupsafe"
+        "https://chromium.googlesource.com/chromium/src/third_party/markupsafe"
+        "0944e71f4b2cb9a871bcbe353f95e889b64a611a"
+    )
 
 ## Remove
-   checkout_in_path("${EXTERNALS}/vulkan-headers"
-       "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers"
-       "76f00ef6cbb1886eb1162d1fa39bee8b51e22ee8"
-   )
+    checkout_in_path("${EXTERNALS}/vulkan-headers"
+        "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers"
+        "76f00ef6cbb1886eb1162d1fa39bee8b51e22ee8"
+    )
 
-   checkout_in_path("${EXTERNALS}/vulkan-tools"
-       "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools"
-       "ef20059aea7ec24d0842edca2f75255eaa33a7b0"
-   )
+    checkout_in_path("${EXTERNALS}/vulkan-tools"
+        "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools"
+        "ef20059aea7ec24d0842edca2f75255eaa33a7b0"
+    )
 
-   checkout_in_path("${EXTERNALS}/abseil-cpp"
-       "https://skia.googlesource.com/external/github.com/abseil/abseil-cpp.git"
-       "c5a424a2a21005660b182516eb7a079cd8021699"
-   )
+    checkout_in_path("${EXTERNALS}/abseil-cpp"
+        "https://skia.googlesource.com/external/github.com/abseil/abseil-cpp.git"
+        "c5a424a2a21005660b182516eb7a079cd8021699"
+    )
 
 ## REMOVE ^
-   checkout_in_path("${EXTERNALS}/dawn"
-       "https://dawn.googlesource.com/dawn.git"
-       "e6d4598d36157639606a780164c425c6bffb93f6"
-   )
+    checkout_in_path("${EXTERNALS}/dawn"
+        "https://dawn.googlesource.com/dawn.git"
+        "e6d4598d36157639606a780164c425c6bffb93f6"
+    )
 
-   vcpkg_find_acquire_program(GIT)
-   file(READ "${SOURCE_PATH}/third_party/externals/dawn/generator/dawn_version_generator.py" DVG_CONTENT)
-   string(REPLACE "return 'git.bat' if sys.platform == 'win32' else 'git'" "return '${GIT}'" DVG_CONTENT ${DVG_CONTENT})
-   file(WRITE "${SOURCE_PATH}/third_party/externals/dawn/generator/dawn_version_generator.py" ${DVG_CONTENT})
+    vcpkg_find_acquire_program(GIT)
+    file(READ "${SOURCE_PATH}/third_party/externals/dawn/generator/dawn_version_generator.py" DVG_CONTENT)
+    string(REPLACE "return 'git.bat' if sys.platform == 'win32' else 'git'" "return '${GIT}'" DVG_CONTENT ${DVG_CONTENT})
+    file(WRITE "${SOURCE_PATH}/third_party/externals/dawn/generator/dawn_version_generator.py" ${DVG_CONTENT})
+else()
+    set(OPTIONS "${OPTIONS} skia_use_dawn=false")
 endif()
 
 if("gl" IN_LIST FEATURES)
     string(APPEND OPTIONS " skia_use_gl=true")
-    list(APPEND SKIA_PUBLIC_DEFINITIONS SK_GL)
+else()
+    string(APPEND OPTIONS " skia_use_gl=false")
 endif()
 
 set(OPTIONS_DBG "${OPTIONS} is_debug=true")
@@ -326,11 +328,8 @@ else()
     set(DAWN_LINKAGE "static")
 endif()
 
-vcpkg_list(SET SKIA_TARGETS
-    ":skia"
-#    ":gpu"
-#    ":pdf"
-)
+
+
 if("dawn" IN_LIST FEATURES)
     vcpkg_list(APPEND SKIA_TARGETS
         "third_party/externals/dawn/src/dawn:proc_${DAWN_LINKAGE}"
@@ -339,17 +338,22 @@ if("dawn" IN_LIST FEATURES)
     )
 endif()
 
+set(SKIA_TARGET ":skia")
 vcpkg_install_gn(
     SOURCE_PATH "${SOURCE_PATH}"
     TARGETS
-        ${SKIA_TARGETS}
+        ${SKIA_TARGET}
 )
 
-# message(STATUS "Installing: ${CURRENT_PACKAGES_DIR}/include/${PORT}")
-# file(COPY "${SOURCE_PATH}/include"
-#     DESTINATION "${CURRENT_PACKAGES_DIR}/include")
+message(STATUS "Installing: ${CURRENT_PACKAGES_DIR}/include/${PORT}")
+file(COPY "${SOURCE_PATH}/include" DESTINATION "${CURRENT_PACKAGES_DIR}/include/skia")
+file(COPY "${SOURCE_PATH}/src" DESTINATION "${CURRENT_PACKAGES_DIR}/include/skia")
+file(COPY "${SOURCE_PATH}/tools/sk_app" DESTINATION "${CURRENT_PACKAGES_DIR}/include/skia/tools")
+file(COPY "${SOURCE_PATH}/tools/skui" DESTINATION "${CURRENT_PACKAGES_DIR}/include/skia/tools")
+
 # file(RENAME "${CURRENT_PACKAGES_DIR}/include/include"
 #     "${CURRENT_PACKAGES_DIR}/include/${PORT}")
+
 # file(GLOB_RECURSE SKIA_INCLUDE_FILES LIST_DIRECTORIES false
 #     "${CURRENT_PACKAGES_DIR}/include/${PORT}/*")
 # foreach(file_ ${SKIA_INCLUDE_FILES})
@@ -358,11 +362,20 @@ vcpkg_install_gn(
 
 # get a list of library dependencies for TARGET
 function(gn_desc_target_libs OUTPUT BUILD_DIR TARGET)
-    z_vcpkg_install_gn_get_desc("${OUTPUT}"
+
+    z_vcpkg_install_gn_get_desc(LIBS_
         SOURCE_PATH "${SOURCE_PATH}"
         BUILD_DIR "${BUILD_DIR}"
         TARGET "${TARGET}"
         WHAT_TO_DISPLAY libs)
+
+    z_vcpkg_install_gn_get_desc(FRAMEWORKS_
+        SOURCE_PATH "${SOURCE_PATH}"
+        BUILD_DIR "${BUILD_DIR}"
+        TARGET "${TARGET}"
+      WHAT_TO_DISPLAY frameworks)
+    vcpkg_list(SET OUTPUT_ ${LIBS_} ${FRAMEWORKS_})
+    set(${OUTPUT} ${OUTPUT_} PARENT_SCOPE)
 endfunction()
 
 function(gn_desc_target_defines OUTPUT BUILD_DIR TARGET)
@@ -382,8 +395,6 @@ function(gn_desc_target_public_headers OUTPUT BUILD_DIR TARGET)
         BUILD_DIR "${BUILD_DIR}"
         TARGET "${TARGET}"
       WHAT_TO_DISPLAY public)
-    # exclude system defines such as _HAS_EXCEPTIONS=0
-    list(FILTER OUTPUT_ EXCLUDE REGEX "^_")
     set(${OUTPUT} ${OUTPUT_} PARENT_SCOPE)
 endfunction()
 
@@ -459,27 +470,27 @@ function(z_vcpkg_install_gn_install_headers OUTPUT)
 endfunction()
 
 
-  z_vcpkg_install_gn_install_headers(RES
-    SOURCE_PATH "${SOURCE_PATH}"
-    BUILD_DIR ${DEBUG_BUILD_DIR}
-    TARGET ":skia"
-    INCLUDE_PRIVATE_HEADERS False
-  )
-
+#   z_vcpkg_install_gn_install_headers(RES
+#     SOURCE_PATH "${SOURCE_PATH}"
+#     BUILD_DIR ${DEBUG_BUILD_DIR}
+#     TARGET ":skia"
+#     INCLUDE_PRIVATE_HEADERS True
+#   )
+#
 # vcpkg_list(SET INCLUDE_TARGETS
 #
 #   ":gpu"
 #   ":pdf"
 # )
-
-foreach(INCLUDE_TARGET IN LISTS INCLUDE_TARGETS)
-    z_vcpkg_install_gn_install_headers(RES
-      SOURCE_PATH "${SOURCE_PATH}"
-      BUILD_DIR ${DEBUG_BUILD_DIR}
-      TARGET "${INCLUDE_TARGET}"
-      INCLUDE_PRIVATE_HEADERS True
-    )
-endforeach()
+#
+# foreach(INCLUDE_TARGET IN LISTS INCLUDE_TARGETS)
+#     z_vcpkg_install_gn_install_headers(RES
+#       SOURCE_PATH "${SOURCE_PATH}"
+#       BUILD_DIR ${DEBUG_BUILD_DIR}
+#       TARGET "${INCLUDE_TARGET}"
+#       INCLUDE_PRIVATE_HEADERS True
+#     )
+# endforeach()
 
 # message("${RES}")
 
@@ -489,19 +500,21 @@ endforeach()
 if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
     gn_desc_target_libs(SKIA_DEP_DBG
         "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg"
-        //:skia)
+        "${SKIA_TARGET}")
     gn_desc_target_defines(SKIA_DEFINITIONS_DBG
         "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg"
-        //extract_public_config:extract_skia)
+        "${SKIA_TARGET}")
 endif()
+
+message("SKIA_DEP_DBG: ${SKIA_DEP_DBG}")
 
 if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
     gn_desc_target_libs(SKIA_DEP_REL
         "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel"
-        //:skia)
+        "${SKIA_TARGET}")
     gn_desc_target_defines(SKIA_DEFINITIONS_REL
         "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel"
-        //extract_public_config:extract_skia)
+        "${SKIA_TARGET}")
 endif()
 
 configure_file("${CMAKE_CURRENT_LIST_DIR}/skiaConfig.cmake.in"
