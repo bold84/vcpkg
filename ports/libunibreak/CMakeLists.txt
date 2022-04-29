@@ -4,16 +4,12 @@ project(libunibreak)
 
 set(libunibreak_srcs
   src/emojidef.c  
-  src/filter_dup.c
   src/graphemebreak.c
-  src/graphemebreakdata.c
   src/linebreak.c
-  src/linebreakdata.c
   src/linebreakdef.c
   src/unibreakbase.c
   src/unibreakdef.c
   src/wordbreak.c
-  src/wordbreakdata.c
 )
 
 

@@ -8,21 +8,17 @@ vcpkg_from_github(
   HEAD_REF master
 )
 
-vcpkg_configure_make(
+file(COPY ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt DESTINATION ${SOURCE_PATH})
+
+vcpkg_configure_cmake(
     SOURCE_PATH ${SOURCE_PATH}
-    AUTOCONFIG
+    PREFER_NINJA
+    OPTIONS_DEBUG -DDISABLE_INSTALL_HEADERS=ON
 )
 
-vcpkg_install_make()
+vcpkg_install_cmake()
 
-#file(COPY ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt DESTINATION ${SOURCE_PATH})
-
-# vcpkg_configure_cmake(
-#     SOURCE_PATH ${SOURCE_PATH}
-#     PREFER_NINJA
-#     OPTIONS_DEBUG -DDISABLE_INSTALL_HEADERS=ON
-# )
-#
-# vcpkg_install_cmake()
+configure_file("${CMAKE_CURRENT_LIST_DIR}/libunibreak-config.cmake.in"
+        "${CURRENT_PACKAGES_DIR}/share/${PORT}/libunibreak-config.cmake" @ONLY)
 
 file(INSTALL ${SOURCE_PATH}/LICENCE DESTINATION ${CURRENT_PACKAGES_DIR}/share/libunibreak RENAME copyright)
