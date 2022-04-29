@@ -366,12 +366,16 @@ function(gn_desc_target_libs OUTPUT BUILD_DIR TARGET)
         BUILD_DIR "${BUILD_DIR}"
         TARGET "${TARGET}"
         WHAT_TO_DISPLAY libs)
-
-    z_vcpkg_install_gn_get_desc(FRAMEWORKS_
-        SOURCE_PATH "${SOURCE_PATH}"
-        BUILD_DIR "${BUILD_DIR}"
-        TARGET "${TARGET}"
-      WHAT_TO_DISPLAY frameworks)
+        
+    set(FRAMEWORKS_)
+    if(VCPKG_TARGET_IS_OSX OR VCPKG_TARGET_IS_IOS)
+        z_vcpkg_install_gn_get_desc(FRAMEWORKS_
+            SOURCE_PATH "${SOURCE_PATH}"
+            BUILD_DIR "${BUILD_DIR}"
+            TARGET "${TARGET}"
+            WHAT_TO_DISPLAY frameworks
+        )
+    endif()
     vcpkg_list(SET OUTPUT_ ${LIBS_} ${FRAMEWORKS_})
     set(${OUTPUT} ${OUTPUT_} PARENT_SCOPE)
 endfunction()
@@ -405,6 +409,12 @@ if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
         "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel"
         "${SKIA_TARGET}")
 endif()
+
+message("SKIA_DEP_DBG: ${SKIA_DEP_DBG}")
+
+foreach(DBG IN LISTS SKIA_DEP_DBG)
+  message(${DBG})
+endforeach()
 
 configure_file("${CMAKE_CURRENT_LIST_DIR}/skiaConfig.cmake.in"
         "${CURRENT_PACKAGES_DIR}/share/skia/skiaConfig.cmake" @ONLY)

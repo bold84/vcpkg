@@ -44,3 +44,5 @@ target_compile_definitions(skia INTERFACE
         $<$<CONFIG:Release>:${SKIA_DEFINITIONS_REL}>)
 
 target_include_directories(skia INTERFACE ${_IMPORT_PREFIX}/include)
+
+set(SKIA_INCLUDE_DIR "${_IMPORT_PREFIX}/include/skia")
