@@ -20,7 +20,4 @@ vcpkg_cmake_install()
 configure_file("${CMAKE_CURRENT_LIST_DIR}/libunibreak-config.cmake.in"
         "${CURRENT_PACKAGES_DIR}/share/${PORT}/libunibreak-config.cmake" @ONLY)
 
-configure_file("${CMAKE_CURRENT_LIST_DIR}/libunibreak-config.cmake.in"
-        "${CURRENT_PACKAGES_DIR}/share/${PORT}/libunibreak-config.cmake" @ONLY)
-
 file(INSTALL ${SOURCE_PATH}/LICENCE DESTINATION ${CURRENT_PACKAGES_DIR}/share/libunibreak RENAME copyright)
