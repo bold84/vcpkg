@@ -11,12 +11,9 @@ set(libunibreak_srcs
   src/graphemebreak.c
   src/graphemebreakdata.c
   src/emojidef.c
-  #src/emojidata.c
   src/unibreakbase.c
   src/unibreakdef.c
- 
 )
-
 
 include_directories(src)
 

@@ -21,5 +21,4 @@ set(LIBUNIBREAK_LIBRARY libunibreak::libunibreak PARENT_SCOPE)
 set(LIBUNIBREAK_LIBRARIES libunibreak::libunibreak PARENT_SCOPE)
 set(LIBUNIBREAK_INCLUDE_DIR "${_INSTALL_DIR}/include" PARENT_SCOPE)
 
-
 target_include_directories(unibreak INTERFACE ${_INSTALL_DIR}/include)
