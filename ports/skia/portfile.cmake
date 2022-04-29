@@ -134,7 +134,7 @@ if(CMAKE_HOST_UNIX)
 
 set(OPTIONS "\
 skia_use_lua=false \
-skia_enable_tools=true \
+skia_enable_tools=false \
 skia_enable_spirv_validation=false \
 target_cpu=\"${VCPKG_TARGET_ARCHITECTURE}\"")
 
