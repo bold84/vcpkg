@@ -14,6 +14,7 @@ if(_IMPORT_PREFIX STREQUAL "/")
 endif()
 
 find_library(SKIA_LIB NAMES skia skia.dll)
+#find_library(PATHKIT_LIB NAMES pathkit)
 target_link_libraries(skia INTERFACE "${SKIA_LIB}")
 
 function(set_dependencies CONFIG LIBRARIES)
@@ -43,6 +44,6 @@ target_compile_definitions(skia INTERFACE
         $<$<CONFIG:Debug>:${SKIA_DEFINITIONS_DBG}>
         $<$<CONFIG:Release>:${SKIA_DEFINITIONS_REL}>)
 
-target_include_directories(skia INTERFACE ${_IMPORT_PREFIX}/include)
+target_include_directories(skia INTERFACE ${_IMPORT_PREFIX}/include/skia)
 
 set(SKIA_INCLUDE_DIR "${_IMPORT_PREFIX}/include/skia")
