@@ -344,10 +344,12 @@ vcpkg_install_gn(
 )
 
 message(STATUS "Installing: ${CURRENT_PACKAGES_DIR}/include/${PORT}")
-file(COPY "${SOURCE_PATH}/include" DESTINATION "${CURRENT_PACKAGES_DIR}/include/skia")
-file(COPY "${SOURCE_PATH}/src" DESTINATION "${CURRENT_PACKAGES_DIR}/include/skia")
-file(COPY "${SOURCE_PATH}/tools/sk_app" DESTINATION "${CURRENT_PACKAGES_DIR}/include/skia/tools")
-file(COPY "${SOURCE_PATH}/tools/skui" DESTINATION "${CURRENT_PACKAGES_DIR}/include/skia/tools")
+
+file(COPY "${SOURCE_PATH}/" DESTINATION "${CURRENT_PACKAGES_DIR}/include/skia/")
+# file(COPY "${SOURCE_PATH}/include" DESTINATION "${CURRENT_PACKAGES_DIR}/include/skia")
+# file(COPY "${SOURCE_PATH}/src" DESTINATION "${CURRENT_PACKAGES_DIR}/include/skia")
+# file(COPY "${SOURCE_PATH}/tools/sk_app" DESTINATION "${CURRENT_PACKAGES_DIR}/include/skia/tools")
+# file(COPY "${SOURCE_PATH}/tools/skui" DESTINATION "${CURRENT_PACKAGES_DIR}/include/skia/tools")
 
 # file(RENAME "${CURRENT_PACKAGES_DIR}/include/include"
 #     "${CURRENT_PACKAGES_DIR}/include/${PORT}")
@@ -366,7 +368,7 @@ function(gn_desc_target_libs OUTPUT BUILD_DIR TARGET)
         BUILD_DIR "${BUILD_DIR}"
         TARGET "${TARGET}"
         WHAT_TO_DISPLAY libs)
-        
+
     set(FRAMEWORKS_)
     if(VCPKG_TARGET_IS_OSX OR VCPKG_TARGET_IS_IOS)
         z_vcpkg_install_gn_get_desc(FRAMEWORKS_
