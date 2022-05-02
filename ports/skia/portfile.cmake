@@ -1,7 +1,7 @@
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL https://github.com/google/skia
-    REF 3aa7f602018816ab3f009f1b8d359ccde752e1de
+    REF c58e0ba36c7847cd39787b333df347179cb4baa1
     PATCHES
         "use_vcpkg_fontconfig.patch"
 )
@@ -132,20 +132,19 @@ if(CMAKE_HOST_UNIX)
      replace_skia_dep(fontconfig "/include" "fontconfig" "fontconfig" "")
  endif()
 
+#skia_enable_svg
+#skia_enable_skottie
+#skia_canvaskit_include_viewer
+#skia_use_angle
+#skia_use_ffmpeg
+#skia_compile_modules=true
+
 set(OPTIONS "\
 skia_use_lua=false \
-skia_enable_tools=false \
+skia_enable_tools=true \
 skia_enable_spirv_validation=false \
+skia_enable_svg=true \
 target_cpu=\"${VCPKG_TARGET_ARCHITECTURE}\"")
-
-# used for passing feature-specific definitions to the config file
-set(SKIA_PUBLIC_DEFINITIONS
-    SK_SUPPORT_PDF
-    SK_HAS_JPEG_LIBRARY
-    SK_USE_LIBGIFCODEC
-    SK_HAS_PNG_LIBRARY
-    SK_HAS_WEBP_LIBRARY
-    SK_XML)
 
 if(VCPKG_LIBRARY_LINKAGE STREQUAL dynamic)
     string(APPEND OPTIONS " is_component_build=true")
@@ -279,8 +278,8 @@ else()
     string(APPEND OPTIONS " skia_use_gl=false")
 endif()
 
-set(OPTIONS_DBG "${OPTIONS} is_debug=true")
-set(OPTIONS_REL "${OPTIONS} is_official_build=true")
+set(OPTIONS_DBG "${OPTIONS} is_debug=true is_official_build=false")
+set(OPTIONS_REL "${OPTIONS} is_debug=false is_official_build=true")
 
 if(CMAKE_HOST_WIN32)
     # Load toolchains

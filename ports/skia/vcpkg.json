@@ -31,6 +31,9 @@
     },
     "zlib"
   ],
+    "default-features": [
+    "gl"
+  ],
   "features": {
     "dawn": {
       "description": "dawn support for skia"
