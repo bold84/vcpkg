@@ -1,5 +1,3 @@
-vcpkg_minimum_required(VERSION 2022-10-12)
-
 vcpkg_buildpath_length_warning(36)
 
 vcpkg_from_github(
