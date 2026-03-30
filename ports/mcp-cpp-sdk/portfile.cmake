@@ -1,3 +1,4 @@
+# This port has deep directory structures that can exceed Windows MAX_PATH limits
 vcpkg_buildpath_length_warning(36)
 
 vcpkg_from_github(
